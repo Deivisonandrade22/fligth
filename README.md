@@ -1,0 +1,7 @@
+Este projeto é um backend de um simulador realista de planejamento de voo, desenvolvido com foco em lógica de navegação aérea, organização de código e boas práticas de API. A aplicação permite criar e consultar planos de voo entre aeroportos reais, calculando automaticamente a distância, o tempo estimado de voo e o consumo de combustível com base nas características da aeronave escolhida.
+
+Os aeroportos são identificados por códigos ICAO, e os cálculos de distância utilizam a fórmula de Haversine, garantindo maior precisão ao considerar a curvatura da Terra. A partir dessa distância, o sistema calcula o tempo de voo com base na velocidade de cruzeiro da aeronave e estima o consumo de combustível considerando o gasto por hora.
+
+A aplicação foi construída em Node.js com Express, utilizando MySQL para persistência dos dados e uma arquitetura em camadas (controllers, services e utils), o que facilita a manutenção, testes e futuras evoluções do projeto. Os endpoints permitem tanto a criação de novos planos de voo quanto a listagem com filtros opcionais, simulando cenários reais de planejamento aeronáutico.
+
+Este projeto faz parte de um simulador em evolução contínua e foi desenvolvido com atenção à clareza do código, validações de dados e realismo dos cálculos, servindo tanto como estudo técnico quanto como item de portfólio.
