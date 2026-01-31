@@ -1,0 +1,28 @@
+{
+  "name": "fligth-planner-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend para planejamento de voo educacional e simulador",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [
+    "aviation",
+    "flight",
+    "planner",
+    "simulador"
+  ],
+  "author": "Deivison",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "mysql2": "^3.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
