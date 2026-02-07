@@ -1,48 +1,24 @@
 import pool from '../config/database.js';
 
 /**
- * Busca aeroporto pelo código ICAO
+ * Lista todos os aeroportos
  */
-export async function getAirportByIcaoService(icao) {
-  if (!icao || typeof icao !== 'string') {
-    throw new Error('Código ICAO inválido');
-  }
-
-  const icaoNormalized = icao.trim().toUpperCase();
-
+export async function listAirportsService() {
   const [rows] = await pool.query(
-    `
-    SELECT
-      id,
-      icao,
-      name,
-      city,
-      country,
-      latitude,
-      longitude,
-      elevation_ft
-    FROM airports
-    WHERE icao = ?
-    LIMIT 1
-    `,
-    [icaoNormalized]
+    'SELECT * FROM airports ORDER BY icao'
   );
 
-  if (rows.length === 0) {
-    return null;
-  }
+  return rows;
+}
 
-  const airport = rows[0];
+/**
+ * Busca aeroporto por ICAO
+ */
+export async function getAirportByIcaoService(icao) {
+  const [rows] = await pool.query(
+    'SELECT * FROM airports WHERE TRIM(UPPER(icao)) = TRIM(UPPER(?))',
+    [icao]
+  );
 
-  // 🔒 Garantia de tipo (CRÍTICO para Haversine)
-  return {
-    id: airport.id,
-    icao: airport.icao,
-    name: airport.name,
-    city: airport.city,
-    country: airport.country,
-    latitude: Number(airport.latitude),
-    longitude: Number(airport.longitude),
-    elevation_ft: airport.elevation_ft
-  };
+  return rows[0];
 }
