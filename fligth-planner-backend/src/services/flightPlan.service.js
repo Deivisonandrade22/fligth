@@ -96,7 +96,17 @@ export async function createFlightPlanService(
     fuel_liters:
       fuelUsedLiters !== null
         ? Number(fuelUsedLiters.toFixed(2))
-        : null
+        : null,
+
+    origin_coords:{ 
+      lat:Number(origin.latitude),
+      lng: Number(origin.longitude)
+
+    },
+    destination_coords:{
+      lat: Number(destination.latitude),
+      lng: Number(destination.longitude)
+    }
   };
 }
 

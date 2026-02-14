@@ -1,68 +1,106 @@
 body {
-  background: #0f172a;
-  color: white;
+  margin: 0;
   font-family: Arial, sans-serif;
+  background: #0f172a;
 }
 
-.container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 25px;
+/* Layout principal */
+.layout {
+  display: flex;
+  height: 100%;
+}
+
+/* Painel esquerdo */
+.left-panel {
+  width: 380px;
   background: #1e293b;
-  border-radius: 10px;
+  padding: 25px;
+  border-right: 1px solid #155ad1;
+  overflow-y: auto;
 }
 
+/* Títulos */
 h1 {
-  text-align: center;
+  margin-top: 0;
 }
 
 label {
   display: block;
   margin-top: 10px;
+  font-weight: bold;
 }
 
+/* Inputs */
 select, button {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  border-radius: 6px;
-  border: none;
+  margin-bottom: 10px;
 }
 
+/* Botão */
 button {
-  margin-top: 15px;
-  background: #2563eb;
+  background: #1d72f3;
   color: white;
+  border: none;
   cursor: pointer;
 }
 
 button:hover {
-  background: #1d4ed8;
+  background: #155ad1;
 }
 
+/* Erro */
+.error {
+  color: red;
+}
+
+/* Resultado */
 .result {
-  margin-top: 20px;
-  padding: 15px;
-  background: #0f172a;
-  border-radius: 8px;
+  background: #041234;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 4px;
 }
 
+/* Histórico */
 .history {
-  margin-top: 25px;
+  margin-top: 20px;
 }
 
-table {
+.history table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid #334155;
-  text-align: left;
+.history th,
+.history td {
+  border: 1px solid #363433;
+  padding: 6px;
+  font-size: 14px;
 }
 
-.error {
-  color: #f87171;
-  margin-top: 10px;
+.history th {
+  background: #323239;
 }
+
+/* Painel do mapa (direita) */
+.map-panel {
+  flex: 1;
+  height: 100;
+}
+
+/* Mapa ocupa tudo */
+.map-container {
+  width: 100%;
+  height: 100%;
+  width: 380px;
+  background: #1e293b;
+  padding: 600px;
+  border-right: 1px solid #155ad1;
+  overflow-y: auto;
+
+  
+}
+
+

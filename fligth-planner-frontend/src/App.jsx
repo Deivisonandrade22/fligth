@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import 'leaflet/dist/leaflet.css';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import { useMap } from 'react-leaflet';
 
 const API_URL = 'http://localhost:3300';
+
+
 
 function App() {
   // Estados do formulário
@@ -36,7 +41,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/flightplan`);
       const data = await response.json();
-      setPlans(data);
+      setPlans(data.slice(0, 3)); // últimos 3
     } catch (err) {
       setError('Erro ao carregar histórico');
     }
@@ -65,14 +70,8 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/flightplan`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          origin,
-          destination,
-          aircraft
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origin, destination, aircraft })
       });
 
       const data = await response.json();
@@ -82,7 +81,7 @@ function App() {
       }
 
       setFlightResult(data);
-      loadPlans(); // atualiza histórico
+      loadPlans();
     } catch (err) {
       setError(err.message);
     }
@@ -97,96 +96,122 @@ function App() {
     loadAirports();
     loadPlans();
   }, []);
-  
+
+  // Coordenadas para o mapa
+  const originCoords = flightResult?.origin_coords || flightResult?.origin_coors;
+  const destCoords = flightResult?.destination_coords;
 
   return (
-    <div className="container">
-      <h1>Flight Planner</h1>
+    <div className="layout">
 
       {/* ============================== */}
-      {/* Formulário */}
+      {/* PAINEL ESQUERDO */}
       {/* ============================== */}
-      <form onSubmit={handleSubmit}>
+      <div className="left-panel">
 
-        <label>Origem</label>
-        <select value={origin} onChange={(e) => setOrigin(e.target.value)}>
-          <option value="">Selecione</option>
-          {airports.map((airport) => (
-            <option key={airport.id} value={airport.icao}>
-              {airport.icao} - {airport.nome}
-            </option>
-          ))}
-        </select>
+        <h1>Flight Planner</h1>
 
-        <label>Destino</label>
-        <select value={destination} onChange={(e) => setDestination(e.target.value)}>
-          <option value="">Selecione</option>
-          {airports.map((airport) => (
-            <option key={airport.id} value={airport.icao}>
-              {airport.icao} - {airport.nome}
-            </option>
-          ))}
-        </select>
-
-        <label>Aeronave</label>
-        <select value={aircraft} onChange={(e) => setAircraft(e.target.value)}>
-          <option value="C172">Cessna 172</option>
-          <option value="PA28">Piper PA-28</option>
-          <option value="BE58">Beechcraft Baron</option>
-        </select>
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Calculando...' : 'Criar Plano de Voo'}
-        </button>
-      </form>
-
-      {/* ============================== */}
-      {/* Erro */}
-      {/* ============================== */}
-      {error && <p className="error">{error}</p>}
-
-      {/* ============================== */}
-      {/* Resultado */}
-      {/* ============================== */}
-      {flightResult && (
-        <div className="result">
-          <h2>Resultado do Voo</h2>
-          <p><strong>Origem:</strong> {flightResult.origin}</p>
-          <p><strong>Destino:</strong> {flightResult.destination}</p>
-          <p><strong>Aeronave:</strong> {flightResult.aircraft}</p>
-          <p><strong>Distância:</strong> {flightResult.distance_km} km</p>
-          <p><strong>Tempo de voo:</strong> {flightResult.flight_time_hours} h</p>
-          <p><strong>Combustível:</strong> {flightResult.fuel_liters} L</p>
-        </div>
-      )}
-
-      {/* ============================== */}
-      {/* Histórico */}
-      {/* ============================== */}
-      <div className="history">
-        <h2>Histórico de Voos</h2>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Origem</th>
-              <th>Destino</th>
-              <th>Aeronave</th>
-              <th>Distância</th>
-            </tr>
-          </thead>
-          <tbody>
-            {plans.map((plan) => (
-              <tr key={plan.id}>
-                <td>{plan.origin}</td>
-                <td>{plan.destination}</td>
-                <td>{plan.aircraft}</td>
-                <td>{plan.distance_km} km</td>
-              </tr>
+        <form onSubmit={handleSubmit}>
+          <label>Origem</label>
+          <select value={origin} onChange={(e) => setOrigin(e.target.value)}>
+            <option value="">Selecione</option>
+            {airports.map((airport) => (
+              <option key={airport.id} value={airport.icao}>
+                {airport.icao} - {airport.nome}
+              </option>
             ))}
-          </tbody>
-        </table>
+          </select>
+
+          <label>Destino</label>
+          <select value={destination} onChange={(e) => setDestination(e.target.value)}>
+            <option value="">Selecione</option>
+            {airports.map((airport) => (
+              <option key={airport.id} value={airport.icao}>
+                {airport.icao} - {airport.nome}
+              </option>
+            ))}
+          </select>
+
+          <label>Aeronave</label>
+          <select value={aircraft} onChange={(e) => setAircraft(e.target.value)}>
+            <option value="C172">Cessna 172</option>
+            <option value="PA28">Piper PA-28</option>
+            <option value="BE58">Beechcraft Baron</option>
+          </select>
+
+          <button type="submit" disabled={loading}>
+            {loading ? 'Calculando...' : 'Criar Plano de Voo'}
+          </button>
+        </form>
+
+        {error && <p className="error">{error}</p>}
+
+        {/* Resultado */}
+        {flightResult && (
+          <div className="result">
+            <h2>Resultado</h2>
+            <p><strong>Origem:</strong> {flightResult.origin}</p>
+            <p><strong>Destino:</strong> {flightResult.destination}</p>
+            <p><strong>Aeronave:</strong> {flightResult.aircraft}</p>
+            <p><strong>Distância:</strong> {flightResult.distance_km} km</p>
+            <p><strong>Tempo:</strong> {flightResult.flight_time_hours} h</p>
+            <p><strong>Combustível:</strong> {flightResult.fuel_liters} L</p>
+          </div>
+        )}
+
+        {/* Histórico */}
+        <div className="history">
+          <h2>Últimos Voos</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Origem</th>
+                <th>Destino</th>
+                <th>Aeronave</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((plan) => (
+                <tr key={plan.id}>
+                  <td>{plan.origin}</td>
+                  <td>{plan.destination}</td>
+                  <td>{plan.aircraft}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       </div>
+
+      {/* ============================== */}
+      {/* MAPA DIREITA */}
+      {/* ============================== */}
+      <div className="map-panel">
+        {originCoords && destCoords && (
+          <MapContainer
+            center={[originCoords.lat, originCoords.lng]}
+            zoom={6}
+            className="map-container"
+          >
+            <TileLayer
+              attribution="&copy; OpenStreetMap"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            <Marker position={[originCoords.lat, originCoords.lng]} />
+            <Marker position={[destCoords.lat, destCoords.lng]} />
+
+            <Polyline
+              positions={[
+                [originCoords.lat, originCoords.lng],
+                [destCoords.lat, destCoords.lng]
+              ]}
+            />
+          </MapContainer>
+        )}
+      </div>
+
     </div>
   );
 }
