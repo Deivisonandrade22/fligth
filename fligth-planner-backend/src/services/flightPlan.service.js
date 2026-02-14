@@ -135,7 +135,7 @@ export async function listFlightPlansService(filters = {}) {
     params.push(`%${filters.aircraft.trim()}%`);
   }
 
-  sql += ' ORDER BY created_at DESC';
+  sql += ' ORDER BY created_at DESC LIMIT 3';
 
   const [rows] = await pool.query(sql, params);
   return rows;
